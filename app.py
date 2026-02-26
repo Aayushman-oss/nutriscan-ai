@@ -4,6 +4,7 @@ from google.genai import types
 import PIL.Image
 from pydantic import BaseModel
 import json
+import urllib.parse # NEW: Required for making share links
 
 # --- 1. PAGE CONFIG & CUSTOM CSS (Minimalist Styling) ---
 st.set_page_config(page_title="NutriScan AI", page_icon="🍏", layout="centered")
@@ -31,7 +32,6 @@ class BadIngredient(BaseModel):
     name: str
     explanation: str
 
-# NEW: Added a slot for psychological insights
 class FoodAnalysis(BaseModel):
     product_identified: str
     health_rating: int
@@ -66,7 +66,6 @@ if image_to_process is not None:
     client = genai.Client(api_key=api_key)
     img = PIL.Image.open(image_to_process)
     
-    # NEW: Highly strict, constrained prompt
     prompt = """
     You are a strict, concise nutritionist. Analyze the ingredients in this image.
     1. Keep the 'verdict' to ONE OR TWO WORDS max (e.g., 'Highly Processed', 'Healthy', 'Avoid').
@@ -98,7 +97,6 @@ if image_to_process is not None:
             with col2:
                 st.subheader(f"{data['product_identified']}")
                 
-                # Show the short verdict
                 if data['health_rating'] >= 7:
                     st.success(f"**Verdict:** {data['verdict']}")
                 elif data['health_rating'] >= 4:
@@ -106,13 +104,11 @@ if image_to_process is not None:
                 else:
                     st.error(f"**Verdict:** {data['verdict']}")
 
-                # NEW: Visual Progress Bar for the Score (Multiplying by 10 makes it out of 100)
                 st.write(f"**Health Score:** {data['health_rating']} / 10")
                 st.progress(data['health_rating'] * 10) 
             
             st.write("") 
             
-            # NEW: Displaying the Psychological Insights
             st.error("🧠 **AI Insights**")
             for insight in data['psychological_insights']:
                 st.write(f"▪️ {insight}")
@@ -127,7 +123,6 @@ if image_to_process is not None:
                 else:
                     for item in data['bad_ingredients']:
                         st.write(f"**{item['name']}**")
-                        # The explanation will now be one short sentence
                         st.caption(f"{item['explanation']}")
                         
             with tab2:
@@ -138,7 +133,32 @@ if image_to_process is not None:
                 st.write("**Instead of this, try:**")
                 for item in data['healthy_replacements']:
                     st.write(f"🍽️ {item}")
-                    
+            
+            # --- NEW: THE VIRAL SHARE BUTTONS ---
+            st.divider()
+            st.write("### 📢 Warn your friends!")
+            
+            # 1. Draft the message
+            app_url = "https://your-streamlit-app-url.streamlit.app" # Replace with your actual live URL later
+            share_text = f"🚨 I just scanned {data['product_identified']} with NutriScan AI!\n\n"
+            share_text += f"Score: {data['health_rating']}/10 ({data['verdict']})\n"
+            share_text += f"Shocking fact: {data['psychological_insights'][0]}\n\n"
+            share_text += f"Decode your food here: {app_url}"
+            
+            # 2. Convert text to URL format
+            encoded_text = urllib.parse.quote(share_text)
+            
+            # 3. Create social links
+            whatsapp_url = f"https://wa.me/?text={encoded_text}"
+            twitter_url = f"https://twitter.com/intent/tweet?text={encoded_text}"
+            
+            # 4. Display as nice clickable buttons
+            colA, colB = st.columns(2)
+            with colA:
+                st.markdown(f'<a href="{whatsapp_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #25D366; color: white; text-align: center; text-decoration: none; border-radius: 8px; width: 100%;">🟢 Share on WhatsApp</a>', unsafe_allow_html=True)
+            with colB:
+                st.markdown(f'<a href="{twitter_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #1DA1F2; color: white; text-align: center; text-decoration: none; border-radius: 8px; width: 100%;">🐦 Share on X</a>', unsafe_allow_html=True)
+                
         except Exception as e:
             status.update(label="Analysis Failed", state="error", expanded=False)
             st.error(f"Something went wrong: {e}")
