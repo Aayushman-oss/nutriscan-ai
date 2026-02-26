@@ -31,10 +31,12 @@ class BadIngredient(BaseModel):
     name: str
     explanation: str
 
+# NEW: Added a slot for psychological insights
 class FoodAnalysis(BaseModel):
     product_identified: str
     health_rating: int
     verdict: str
+    psychological_insights: list[str] 
     bad_ingredients: list[BadIngredient]
     good_ingredients: list[str]
     healthy_replacements: list[str]
@@ -43,14 +45,12 @@ class FoodAnalysis(BaseModel):
 st.markdown("<h1 class='main-title'>🍏 NutriScan AI</h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-title'>Snap a photo or upload an ingredient label to decode what you are really eating.</p>", unsafe_allow_html=True)
 
-# Load the secure API key
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
 except KeyError:
     st.error("🔒 App is locked. Please add your API Key to Streamlit Secrets.")
     st.stop()
 
-# --- NEW: INPUT TABS (Camera vs Upload) ---
 tab_upload, tab_camera = st.tabs(["📁 Upload File", "📸 Take Photo"])
 
 with tab_upload:
@@ -59,20 +59,20 @@ with tab_upload:
 with tab_camera:
     camera_photo = st.camera_input("Take a picture of the ingredients")
 
-# Determine which image the user provided (if any)
 image_to_process = uploaded_file if uploaded_file is not None else camera_photo
 
 # --- 4. THE LOGIC & DISPLAY ---
-# Run the AI only if an image is either uploaded OR taken via camera
 if image_to_process is not None:
     client = genai.Client(api_key=api_key)
     img = PIL.Image.open(image_to_process)
     
+    # NEW: Highly strict, constrained prompt
     prompt = """
-    You are an expert nutritionist. Analyze the ingredients in this image.
-    Fill out the required data structure accurately.
-    For bad ingredients, explain the complex chemical names in simple terms.
-    Suggest 2-3 healthier, whole-food alternatives.
+    You are a strict, concise nutritionist. Analyze the ingredients in this image.
+    1. Keep the 'verdict' to ONE OR TWO WORDS max (e.g., 'Highly Processed', 'Healthy', 'Avoid').
+    2. Provide 2 short 'psychological_insights' to shock or inform the user (e.g., 'Equivalent to 5 teaspoons of sugar', 'Contains 3 high-risk additives').
+    3. For 'bad_ingredients', keep the explanation to ONE short, simple sentence that a 10-year-old would understand.
+    4. Suggest 2-3 healthier, whole-food alternatives.
     """
     
     with st.status("🔍 AI is analyzing the label...", expanded=True) as status:
@@ -98,14 +98,26 @@ if image_to_process is not None:
             with col2:
                 st.subheader(f"{data['product_identified']}")
                 
+                # Show the short verdict
                 if data['health_rating'] >= 7:
-                    st.success(f"**Verdict:** {data['verdict']} (Score: {data['health_rating']}/10)")
+                    st.success(f"**Verdict:** {data['verdict']}")
                 elif data['health_rating'] >= 4:
-                    st.warning(f"**Verdict:** {data['verdict']} (Score: {data['health_rating']}/10)")
+                    st.warning(f"**Verdict:** {data['verdict']}")
                 else:
-                    st.error(f"**Verdict:** {data['verdict']} (Score: {data['health_rating']}/10)")
+                    st.error(f"**Verdict:** {data['verdict']}")
+
+                # NEW: Visual Progress Bar for the Score (Multiplying by 10 makes it out of 100)
+                st.write(f"**Health Score:** {data['health_rating']} / 10")
+                st.progress(data['health_rating'] * 10) 
             
             st.write("") 
+            
+            # NEW: Displaying the Psychological Insights
+            st.error("🧠 **AI Insights**")
+            for insight in data['psychological_insights']:
+                st.write(f"▪️ {insight}")
+                
+            st.write("")
             
             tab1, tab2, tab3 = st.tabs(["⚠️ Red Flags", "✅ Good Stuff", "💡 Better Choices"])
             
@@ -115,6 +127,7 @@ if image_to_process is not None:
                 else:
                     for item in data['bad_ingredients']:
                         st.write(f"**{item['name']}**")
+                        # The explanation will now be one short sentence
                         st.caption(f"{item['explanation']}")
                         
             with tab2:
