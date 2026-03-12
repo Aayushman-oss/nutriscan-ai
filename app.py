@@ -70,7 +70,7 @@ if image_to_process is not None:
     You are a strict, concise nutritionist. Analyze the ingredients in this image.
     1. Keep the 'verdict' to ONE OR TWO WORDS max (e.g., 'Highly Processed', 'Healthy', 'Avoid').
     2. Provide 2 short 'psychological_insights' to shock or inform the user (e.g., 'Equivalent to 5 teaspoons of sugar', 'Contains 3 high-risk additives').
-    3. For 'bad_ingredients', keep the explanation to ONE short, simple sentence that a 10-year-old would understand.
+    3. For 'bad_ingredients', specifically hunt down and decode any numerical codes (like E-numbers or INS codes such as 282, 471, etc.). State the actual chemical name, and explain what it does to the body in ONE short, simple sentence that a 10-year-old would understand.
     4. Suggest 2-3 healthier, whole-food alternatives.
     """
     
