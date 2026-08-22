@@ -1,7 +1,24 @@
-# 🍏 NutriScan AI
-**Decode What You Eat. Scan. Analyze. Understand.**
+# NutriScan AI
 
-NutriScan AI is a minimal, dark-mode web application that uses advanced vision models to instantly analyze food ingredient labels. It translates complex chemical names into plain English, flags harmful additives, and suggests whole-food alternatives.
+NutriScan AI is a multimodal Generative AI application that analyzes food product labels from images and converts complex ingredient information into simple, understandable insights.
+
+The application uses **Google Gemini 2.5 Flash** to identify and analyze ingredients, highlight potentially concerning additives, explain their purpose and possible health considerations, identify beneficial ingredients, and suggest healthier alternatives.
+
+### Key Features
+
+* 📷 Upload a food product or ingredient-label image
+* 🤖 AI-powered ingredient analysis using Gemini
+* 🧪 Identification of potentially concerning ingredients
+* 💡 Plain-language explanations of complex ingredients
+* 🥗 Identification of beneficial ingredients
+* ⭐ Overall health assessment and verdict
+* 🔄 Suggestions for healthier alternatives
+* 📊 Structured AI responses using Pydantic models
+* 🖥️ Interactive Streamlit interface
+
+### Tech Stack
+
+**Python • Streamlit • Google Gemini 2.5 Flash • Google GenAI SDK • Pydantic • Pillow**
 
 [Live Demo: Play with NutriScan AI Here](https://your-app-link-here.streamlit.app/) 
 
