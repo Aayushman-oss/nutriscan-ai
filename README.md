@@ -3,7 +3,7 @@
 
 NutriScan AI is a minimal, dark-mode web application that uses advanced vision models to instantly analyze food ingredient labels. It translates complex chemical names into plain English, flags harmful additives, and suggests whole-food alternatives.
 
-[Live Demo: Play with NutriScan AI Here](https://your-app-link-here.streamlit.app/) *(<- Add your actual link here!)*
+[Live Demo: Play with NutriScan AI Here](https://your-app-link-here.streamlit.app/) 
 
 ---
 
@@ -30,7 +30,7 @@ If you want to run this machine learning application on your own machine, follow
 
 **1. Clone the repository**
 ```bash
-git clone [https://github.com/your-username/nutriscan-ai.git](https://github.com/your-username/nutriscan-ai.git)
+git clone [https://your-app-link-here.streamlit.app/](https://your-app-link-here.streamlit.app/)
 cd nutriscan-ai
 ```
 
